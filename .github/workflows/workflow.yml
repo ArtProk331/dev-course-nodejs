@@ -4,57 +4,25 @@ on:
   push:
     branches: [ "main" ]
 
-env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
-  CONTAINER_NAME: bsuir-node-web-container-var18
-
 jobs:
-  build-and-push:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Log in to the Container Registry
-        uses: docker/login-action@v2
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v4
-        with:
-          context: .
-          push: true
-          tags: ghcr.io/${{ github.repository }}:latest
-
-  deploy:
-    needs: build-and-push
+  local-deploy:
     runs-on: [self-hosted, Linux, wsl-art-runner]
     steps:
-      - name: Log in to GHCR
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+      - name: Checkout repository code
+        uses: actions/checkout@v3
 
       - name: Stop and remove obsolete container
         run: |
-          docker stop ${{ env.CONTAINER_NAME }} || true
-          docker rm ${{ env.CONTAINER_NAME }} || true
+          docker stop bsuir-node-web-container-var18 || true
+          docker rm bsuir-node-web-container-var18 || true
 
-      - name: Pull newest image from Registry
-        run: docker pull ghcr.io/${{ github.repository }}:latest
+      - name: Build local Docker image
+        run: docker build -t bsuir-node-image:latest .
 
       - name: Run updated Node Container on port 8888
         run: |
           docker run -d \
             --restart unless-stopped \
-            --name ${{ env.CONTAINER_NAME }} \
+            --name bsuir-node-web-container-var18 \
             -p 8888:80 \
-            ghcr.io/${{ github.repository }}:latest
-
-      - name: Prune dangling anonymous images layers
-        run: docker image prune -f
+            bsuir-node-image:latest
