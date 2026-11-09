@@ -1,19 +1,11 @@
-# Dockerfile
-FROM node:latest
-
-# Создание директории приложения
-WORKDIR /usr/src/app
-
-# Установка зависимостей приложения
-# Используется символ подстановки для копирования обоих файлов package.json и package-lock.json
+FROM node:18-alpine AS builder
+WORKDIR /app
 COPY package*.json ./
+RUN npm ci --only=production
 
-RUN npm install
-
-# Копирование исходного кода приложения
-COPY . .
-
-# Привязка порта, который будет использоваться приложением
-EXPOSE 80
-
-CMD [ "node", "app.js" ]
+FROM node:18-alpine
+WORKDIR /app
+COPY --from=builder /app/node_modules ./node_modules
+COPY app.js app.py
+EXPOSE 8888
+ENTRYPOINT ["node", "app.py"]
