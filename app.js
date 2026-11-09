@@ -38,7 +38,7 @@ app.get('/', (req, res) => {
         </head>
         <body>
             <div class="container">
-                <h1>Flask Web Server [Вариант №18]</h1>
+                <h1>Node.js Express Server [Вариант №18]</h1>
                 <p>Приложение успешно развернуто через конвейер GitHub Actions на базе Self-Hosted раннера в WSL2 по стратегии GitHub Flow.</p>
                 <div class="info-box">Сервер непрерывно работает (Uptime): ${uptime} сек.</div>
                 <a href="/diagnostics" class="btn">Запустить диагностику ОЗУ</a>
@@ -51,7 +51,7 @@ app.get('/', (req, res) => {
 app.get('/diagnostics', (req, res) => {
     const mem = process.memoryUsage();
     const rss = (mem.rss / 1024 / 1024).toFixed(2);
-    const vms = (mem.external / 1024 / 1024).toFixed(2); 
+    const heapTotal = (mem.heapTotal / 1024 / 1024).toFixed(2); 
     const totalRam = (os.totalmem() / 1024 / 1024 / 1024).toFixed(2);
     const ramPercent = (((os.totalmem() - os.freemem()) / os.totalmem()) * 100).toFixed(1);
 
@@ -74,7 +74,7 @@ app.get('/diagnostics', (req, res) => {
                 <div class="title">=== МОНИТОРИНГ УТИЛИЗАЦИИ РЕСУРСОВ ОЗУ ===</div>
                 <div class="row">DEVOPS BUILD TICKET: <span class="highlight">#${generateBuildTicket()}</span></div>
                 <div class="row">Занято физической памяти (RSS): <span class="highlight">${rss} МБ</span></div>
-                <div class="row">Виртуальный объем процесса (VMS): <span class="highlight">${vms} МБ</span></div>
+                <div class="row">Выделено кучи (Heap Total): <span class="highlight">${heapTotal} МБ</span></div>
                 <div class="row">Общая доступная память системы: <span class="highlight">${totalRam} ГБ</span></div>
                 <div class="row">Процент загрузки ОЗУ хоста WSL2: <span class="highlight">${ramPercent}%</span></div>
                 <div class="row">Всего транзакций обработано сервером: <span class="highlight">${REQUEST_COUNT}</span></div>
